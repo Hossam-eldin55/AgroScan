@@ -22,7 +22,7 @@ import urllib.request
 # ─────────────────────────────────────────────────────────────
 # Local path inside the repo. Works on Streamlit Community Cloud,
 # Hugging Face Spaces, Render, or any container deployment.
-MODEL_PATH  = os.environ.get("MODEL_PATH", "models/best_wavelet_resnet_model.pth")
+MODEL_PATH  = os.environ.get("MODEL_PATH", "models/best_wavelet_resnet_model (1).pth.zip")
 
 # Optional: if the .pth file is too large to commit to GitHub (>100MB),
 # host it elsewhere (Hugging Face Hub, S3, a GitHub Release asset, etc.)
