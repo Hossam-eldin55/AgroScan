@@ -1,0 +1,23 @@
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+env/
+
+# Streamlit
+.streamlit/secrets.toml
+
+# Model weights — large binary. Currently set to allow committing
+# directly since the file is under GitHub's 100MB limit (~91MB).
+# Remove the line below once you've confirmed your file size.
+# models/*.pth
+!models/.gitkeep
+
+# OS / editor junk
+.DS_Store
+.vscode/
+.idea/
+
+# Jupyter
+.ipynb_checkpoints/
