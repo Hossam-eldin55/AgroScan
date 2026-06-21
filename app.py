@@ -22,7 +22,7 @@ import urllib.request
 # ─────────────────────────────────────────────────────────────
 # Local path inside the repo. Works on Streamlit Community Cloud,
 # Hugging Face Spaces, Render, or any container deployment.
-MODEL_PATH  = os.environ.get("MODEL_PATH", "models/best_wavelet_resnet_model (1).pth.zip")
+MODEL_PATH  = os.environ.get("MODEL_PATH", "models/best_wavelet_resnet_model.pth")
 
 # Optional: if the .pth file is too large to commit to GitHub (>100MB),
 # host it elsewhere (Hugging Face Hub, S3, a GitHub Release asset, etc.)
@@ -30,8 +30,9 @@ MODEL_PATH  = os.environ.get("MODEL_PATH", "models/best_wavelet_resnet_model (1)
 # The app will download it once into MODEL_PATH on first run.
 MODEL_URL   = os.environ.get("MODEL_URL", st.secrets.get("MODEL_URL", "") if hasattr(st, "secrets") else "")
 
-NUM_CLASSES = 72
-IMG_SIZE    = 380                          # EfficientNet-B4 native
+NUM_CLASSES  = 67                          # 72 originally collected − 5 excluded during training
+IMG_SIZE     = 224                          # WaveletEnhancedResNet / ResNet50 native input
+BACKBONE_NAME = os.environ.get("BACKBONE_NAME", "resnet50")  # resnet18/34/50/101 — must match training
 DEVICE      = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 
@@ -201,80 +202,78 @@ div.stButton > button:hover { background: #388e3c; }
 
 
 # ─────────────────────────────────────────────────────────────
-#  CLASS DATA  (72 classes with order and risk)
+#  CLASS DATA  (67 classes — order matches the trained model's
+#  output indices exactly, verified against the test-set
+#  classification_report from the training notebook)
 # ─────────────────────────────────────────────────────────────
 CLASS_DATA = [
-    ("Acalymma vittatum",              "Coleoptera",   "High"),
-    ("Achatina fulica",                "Gastropoda",   "High"),
-    ("Alticini",                       "Coleoptera",   "Medium"),
-    ("Ampelophaga",                    "Lepidoptera",  "High"),
-    ("Anasa tristis",                  "Hemiptera",    "High"),
-    ("Aphids",                         "Hemiptera",    "Very High"),
-    ("Armyworm butterfly",             "Lepidoptera",  "High"),
-    ("Armyworm caterpillar",           "Lepidoptera",  "Very High"),
-    ("Aulacophora similis",            "Coleoptera",   "Medium"),
-    ("Beet army worm butterfly",       "Lepidoptera",  "High"),
-    ("Beet army worm caterpillar",     "Lepidoptera",  "High"),
-    ("Beet spot flies butterfly",      "Diptera",      "Medium"),
-    ("Beet spot flies caterpillar",    "Diptera",      "Medium"),
-    ("Beetle",                         "Coleoptera",   "High"),
-    ("Black cutworm butterfly",        "Lepidoptera",  "Medium"),
-    ("Black cutworm caterpillar",      "Lepidoptera",  "Very High"),
-    ("Blister beetle",                 "Coleoptera",   "Medium"),
-    ("Bollworm butterfly",             "Lepidoptera",  "High"),
-    ("Bollworm caterpillar",           "Lepidoptera",  "Very High"),
-    ("Cabbage army worm",              "Lepidoptera",  "High"),
-    ("Cerodonta denticornis butterfly","Diptera",      "Low"),
-    ("Cerodonta denticornis caterpillar","Diptera",    "Medium"),
-    ("Cicadella viridis",              "Hemiptera",    "Medium"),
-    ("Cicadellidae",                   "Hemiptera",    "High"),
-    ("Corn borer butterfly",           "Lepidoptera",  "High"),
-    ("Corn borer caterpillar",         "Lepidoptera",  "Very High"),
-    ("Dermaptera",                     "Dermaptera",   "Low"),
-    ("Grasshopper",                    "Orthoptera",   "Very High"),
-    ("Grub",                           "Coleoptera",   "High"),
-    ("Icerya purchasi Maskell",        "Hemiptera",    "High"),
-    ("Large cutworm butterfly",        "Lepidoptera",  "Medium"),
-    ("Large cutworm caterpillar",      "Lepidoptera",  "High"),
-    ("Legume blister beetle",          "Coleoptera",   "High"),
-    ("Leptinotarsa decemlineata",      "Coleoptera",   "Very High"),
-    ("Locustoidea",                    "Orthoptera",   "Very High"),
-    ("Lycaena delicatula",             "Lepidoptera",  "Low"),
-    ("Lytta polita",                   "Coleoptera",   "Medium"),
-    ("Mantodea",                       "Mantodea",     "Low"),
-    ("Miridae",                        "Hemiptera",    "High"),
-    ("Mites",                          "Arachnida",    "Very High"),
-    ("Mole cricket",                   "Orthoptera",   "High"),
-    ("Mosquito",                       "Diptera",      "Medium"),
-    ("Peach borer butterfly",          "Lepidoptera",  "High"),
-    ("Peach borer caterpillar",        "Lepidoptera",  "Very High"),
-    ("Prodenia litura butterfly",      "Lepidoptera",  "High"),
-    ("Prodenia litura caterpillar",    "Lepidoptera",  "Very High"),
-    ("Red spider",                     "Arachnida",    "Very High"),
-    ("Rhytidodera bowrinii white",     "Coleoptera",   "High"),
-    ("Rice leaf roller butterfly",     "Lepidoptera",  "High"),
-    ("Rice leaf roller caterpillar",   "Lepidoptera",  "Very High"),
-    ("Rice water weevil",              "Coleoptera",   "Very High"),
-    ("Salurnis marginella Guerr",      "Hemiptera",    "Medium"),
-    ("Sawfly butterfly",               "Hymenoptera",  "Medium"),
-    ("Sawfly caterpillar",             "Hymenoptera",  "High"),
-    ("Sericaorient alismots chulsky",  "Coleoptera",   "Medium"),
-    ("Stem borer butterfly",           "Lepidoptera",  "High"),
-    ("Stem borer caterpillar",         "Lepidoptera",  "Very High"),
-    ("Tarnished plant bug",            "Hemiptera",    "High"),
-    ("Therioaphis maculata Buckton",   "Hemiptera",    "High"),
-    ("Thrips",                         "Thysanoptera", "Very High"),
-    ("Wireworm butterfly",             "Coleoptera",   "Medium"),
-    ("Wireworm caterpillar",           "Coleoptera",   "Very High"),
-    ("Xylotrectus",                    "Coleoptera",   "High"),
-    ("Yellow cutworm butterfly",       "Lepidoptera",  "Medium"),
-    ("Yellow cutworm caterpillar",     "Lepidoptera",  "High"),
-    ("Alfalfa plant bug butterfly",    "Hemiptera",    "High"),
-    ("Alfalfa plant bug caterpillar",  "Hemiptera",    "High"),
-    ("Army worm butterfly",            "Lepidoptera",  "High"),
-    ("Army worm caterpillar",          "Lepidoptera",  "Very High"),
-    ("Asiatic rice borer butterfly",   "Lepidoptera",  "High"),
-    ("Asiatic rice borer caterpillar", "Lepidoptera",  "Very High"),
+    ("Acalymma vittatum",               "Coleoptera",   "High"),
+    ("Achatina fulica",                 "Gastropoda",   "High"),
+    ("Alticini",                        "Coleoptera",   "Medium"),
+    ("Ampelophaga",                     "Lepidoptera",  "High"),
+    ("Anasa tristis",                   "Hemiptera",    "High"),
+    ("Aphids",                          "Hemiptera",    "Very High"),
+    ("Armyworm caterpillar",            "Lepidoptera",  "Very High"),
+    ("Aulacophora similis",             "Coleoptera",   "Medium"),
+    ("Beet spot flies butterfly",       "Diptera",      "Medium"),
+    ("Beet spot flies caterpillar",     "Diptera",      "Medium"),
+    ("Cicadella viridis",               "Hemiptera",    "Medium"),
+    ("Cicadellidae",                    "Hemiptera",    "High"),
+    ("Dermaptera",                      "Dermaptera",   "Low"),
+    ("Icerya purchasi Maskell",         "Hemiptera",    "High"),
+    ("Leptinotarsa decemlineata",       "Coleoptera",   "Very High"),
+    ("Locustoidea",                     "Orthoptera",   "Very High"),
+    ("Lycorma delicatula",              "Hemiptera",    "High"),
+    ("Mantodea",                        "Mantodea",     "Low"),
+    ("Miridae",                         "Hemiptera",    "High"),
+    ("Potosiabre vitarsis",             "Coleoptera",   "Medium"),
+    ("Prodenia litura butterfly",       "Lepidoptera",  "High"),
+    ("Prodenia litura caterpillar",     "Lepidoptera",  "Very High"),
+    ("Rhytidodera bowrinii white",      "Coleoptera",   "High"),
+    ("Salurnis marginella Guerr",       "Hemiptera",    "Medium"),
+    ("Thrips",                          "Thysanoptera", "Very High"),
+    ("Xylotrechus",                     "Coleoptera",   "High"),
+    ("Alfalfa plant bug butterfly",     "Hemiptera",    "High"),
+    ("Alfalfa plant bug caterpillar",   "Hemiptera",    "High"),
+    ("Army worm butterfly",             "Lepidoptera",  "High"),
+    ("Army worm caterpillar",           "Lepidoptera",  "Very High"),
+    ("Asiatic rice borer butterfly",    "Lepidoptera",  "High"),
+    ("Asiatic rice borer caterpillar",  "Lepidoptera",  "Very High"),
+    ("Beet army worm butterfly",        "Lepidoptera",  "High"),
+    ("Beet army worm caterpillar",      "Lepidoptera",  "High"),
+    ("Beetle",                          "Coleoptera",   "High"),
+    ("Black cutworm butterfly",         "Lepidoptera",  "Medium"),
+    ("Black cutworm caterpillar",       "Lepidoptera",  "Very High"),
+    ("Blister beetle",                  "Coleoptera",   "Medium"),
+    ("Bollworm butterfly",              "Lepidoptera",  "High"),
+    ("Bollworm caterpillar",            "Lepidoptera",  "Very High"),
+    ("Cabbage army worm",               "Lepidoptera",  "High"),
+    ("Cerodonta denticornis caterpillar","Diptera",     "Medium"),
+    ("Corn borer butterfly",            "Lepidoptera",  "High"),
+    ("Corn borer caterpillar",          "Lepidoptera",  "Very High"),
+    ("Grasshopper",                     "Orthoptera",   "Very High"),
+    ("Grub",                            "Coleoptera",   "High"),
+    ("Large cutworm butterfly",         "Lepidoptera",  "Medium"),
+    ("Legume blister beetle",           "Coleoptera",   "High"),
+    ("Lytta polita",                    "Coleoptera",   "Medium"),
+    ("Mites",                           "Arachnida",    "Very High"),
+    ("Mole cricket",                    "Orthoptera",   "High"),
+    ("Mosquito",                        "Diptera",      "Medium"),
+    ("Peach borer butterfly",           "Lepidoptera",  "High"),
+    ("Peach borer caterpillar",         "Lepidoptera",  "Very High"),
+    ("Red spider",                      "Arachnida",    "Very High"),
+    ("Rice leaf roller butterfly",      "Lepidoptera",  "High"),
+    ("Rice leaf roller caterpillar",    "Lepidoptera",  "Very High"),
+    ("Rice water weevil",               "Coleoptera",   "Very High"),
+    ("Sawfly butterfly",                "Hymenoptera",  "Medium"),
+    ("Sericaorient alismots chulsky",   "Coleoptera",   "Medium"),
+    ("Stem borer butterfly",            "Lepidoptera",  "High"),
+    ("Stem borer caterpillar",          "Lepidoptera",  "Very High"),
+    ("Tarnished plant bug",             "Hemiptera",    "High"),
+    ("Therioaphis maculata Buckton",    "Hemiptera",    "High"),
+    ("Wireworm butterfly",              "Coleoptera",   "Medium"),
+    ("Wireworm caterpillar",            "Coleoptera",   "Very High"),
+    ("Yellow cutworm butterfly",        "Lepidoptera",  "Medium"),
 ]
 CLASS_NAMES = [c[0] for c in CLASS_DATA]
 
@@ -292,20 +291,82 @@ RISK_COLORS = {
 }
 
 # ─────────────────────────────────────────────────────────────
+#  MODEL ARCHITECTURE — must match the training notebook exactly
+#  (Wavelet_ResNet_on_Cleaned_Dataset_without_conflicts_.ipynb)
+# ─────────────────────────────────────────────────────────────
+class HaarDWT2D(nn.Module):
+    """2D Haar Wavelet Decomposition.
+
+    Input:  RGB image tensor [B, 3, H, W] (H, W must be even)
+    Output: Wavelet tensor   [B, 12, H/2, W/2]  (4 sub-bands per RGB channel)
+    """
+    def __init__(self):
+        super().__init__()
+        self.register_buffer("pL", torch.tensor([0.5, 0.5], dtype=torch.float32))
+        self.register_buffer("pH", torch.tensor([0.5, -0.5], dtype=torch.float32))
+
+    def forward(self, x):
+        B, C, H, W = x.shape
+        if H % 2 != 0 or W % 2 != 0:
+            raise ValueError("Input height and width must be even for HaarDWT2D.")
+
+        x_grouped = x.view(B * C, 1, H, W)
+        k_LL = torch.outer(self.pL, self.pL).view(1, 1, 2, 2)
+        k_LH = torch.outer(self.pL, self.pH).view(1, 1, 2, 2)
+        k_HL = torch.outer(self.pH, self.pL).view(1, 1, 2, 2)
+        k_HH = torch.outer(self.pH, self.pH).view(1, 1, 2, 2)
+        kernels = torch.cat([k_LL, k_LH, k_HL, k_HH], dim=0).to(x.device)
+
+        sub_bands = nn.functional.conv2d(x_grouped, kernels, stride=2)
+        sub_bands = sub_bands.view(B, C, 4, H // 2, W // 2)
+        out = sub_bands.reshape(B, C * 4, H // 2, W // 2)
+        return out
+
+
+class WaveletEnhancedResNet(nn.Module):
+    def __init__(self, num_classes, backbone_name="resnet50"):
+        super().__init__()
+        self.dwt = HaarDWT2D()
+
+        # Convert 12 wavelet channels back to 3 channels so a
+        # pretrained ResNet can process them like RGB-like features.
+        self.frequency_projector = nn.Sequential(
+            nn.Conv2d(in_channels=12, out_channels=3, kernel_size=3, padding=1, bias=False),
+            nn.BatchNorm2d(3),
+            nn.ReLU(inplace=True)
+        )
+
+        if backbone_name == "resnet18":
+            self.backbone = models.resnet18(weights=None)
+        elif backbone_name == "resnet34":
+            self.backbone = models.resnet34(weights=None)
+        elif backbone_name == "resnet50":
+            self.backbone = models.resnet50(weights=None)
+        elif backbone_name == "resnet101":
+            self.backbone = models.resnet101(weights=None)
+        else:
+            raise ValueError("Choose one of: resnet18, resnet34, resnet50, resnet101")
+
+        in_features = self.backbone.fc.in_features
+        self.backbone.fc = nn.Linear(in_features, num_classes)
+
+    def forward(self, x):
+        x_freq = self.dwt(x)
+        x_encoded = self.frequency_projector(x_freq)
+        return self.backbone(x_encoded)
+
+
+# ─────────────────────────────────────────────────────────────
 #  MODEL LOADER
 # ─────────────────────────────────────────────────────────────
 @st.cache_resource(show_spinner="Loading model weights…")
 def load_model():
-    """Load EfficientNet-B4 from MODEL_PATH (auto-downloads from MODEL_URL if set)."""
+    """Load WaveletEnhancedResNet from MODEL_PATH (auto-downloads from MODEL_URL if set)."""
     ensure_model_downloaded()
     if not os.path.exists(MODEL_PATH):
         return None, f"Model file not found at {MODEL_PATH}"
     try:
-        model = models.efficientnet_b4(weights=None)
-        model.classifier = nn.Sequential(
-            nn.Dropout(p=0.4, inplace=True),
-            nn.Linear(model.classifier[1].in_features, NUM_CLASSES)
-        )
+        model = WaveletEnhancedResNet(num_classes=NUM_CLASSES, backbone_name=BACKBONE_NAME)
         state = torch.load(MODEL_PATH, map_location=DEVICE)
         # Handle different checkpoint formats
         if isinstance(state, dict):
@@ -313,7 +374,10 @@ def load_model():
                 if key in state:
                     state = state[key]
                     break
-        model.load_state_dict(state, strict=False)
+        # strict=True on purpose: if the architecture doesn't match the
+        # checkpoint exactly, fail loudly instead of silently loading
+        # an untrained model.
+        model.load_state_dict(state, strict=True)
         model.to(DEVICE).eval()
         return model, None
     except Exception as e:
@@ -325,7 +389,6 @@ def load_model():
 # ─────────────────────────────────────────────────────────────
 TRANSFORM = T.Compose([
     T.Resize((IMG_SIZE, IMG_SIZE)),
-    T.CenterCrop(IMG_SIZE),
     T.ToTensor(),
     T.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225]),
 ])
@@ -413,15 +476,15 @@ if page == "🏠 Home":
             '''<p style="font-size:0.95rem;color:#333;line-height:1.8;margin:0;">'''  +
             '''<b>AgroScan</b> is a deep-learning system that automatically identifies '''  +
             '''agricultural pest insects from field photographs. It was trained on a custom '''  +
-            '''dataset of <b>118,664 images</b> spanning <b>72 pest species</b>, covering '''  +
+            '''dataset of <b>115,478 images</b> spanning <b>67 pest species</b>, covering '''  +
             '''the most economically significant insects across major crop systems worldwide.'''  +
             '''</p></div>''', unsafe_allow_html=True)
 
         st.markdown('''<div class="sec-hdr">How It Works</div>''', unsafe_allow_html=True)
         steps = [
             ("📸", "Upload",    "Take or upload a photo of the suspected pest."),
-            ("⚙️", "Preprocess","Image is resized, normalised, and standardised to 380×380."),
-            ("🧠", "Inference", "EfficientNet-B4 runs forward pass on GPU/CPU."),
+            ("⚙️", "Preprocess","Image is resized, normalised, and standardised to 224×224."),
+            ("🧠", "Inference", "A Haar-wavelet front end feeds a ResNet50 backbone for the forward pass."),
             ("📊", "Result",    "Top predicted species and confidence score are shown."),
         ]
         for icon, title, desc in steps:
@@ -436,9 +499,9 @@ if page == "🏠 Home":
     with col_right:
         st.markdown('''<div class="sec-hdr">Project Objectives</div>''', unsafe_allow_html=True)
         objectives = [
-            "Develop an accurate AI model for 72-class agricultural pest identification",
+            "Develop an accurate AI model for 67-class agricultural pest identification",
             "Build a clean, deduplicated training dataset from 135K+ raw images",
-            "Apply transfer learning (EfficientNet-B4 + ImageNet weights)",
+            "Apply a Haar-wavelet front end with a ResNet50 backbone (ImageNet pretrained)",
             "Handle class imbalance with weighted loss and stratified sampling",
             "Deploy a user-friendly web interface for real-world field use",
             "Contribute to integrated pest management (IPM) through AI automation",
@@ -605,7 +668,7 @@ elif page == "📋 Pest Classes":
 
     st.markdown(
         f'''<div style="font-size:0.85rem;color:#555;margin:0.5rem 0 1rem;">'''  +
-        f'''Showing <b style="color:#1b5e20;">{len(filtered)}</b> of 72 classes</div>''',
+        f'''Showing <b style="color:#1b5e20;">{len(filtered)}</b> of {len(CLASS_DATA)} classes</div>''',
         unsafe_allow_html=True
     )
 
@@ -655,11 +718,11 @@ elif page == "📖 About Project":
         dataset_info = [
             ("📦", "Source",           "Custom web-scraped dataset"),
             ("🗂️", "Raw images",       "135,190 images"),
-            ("✅", "Cleaned images",   "118,664 images (after dedup)"),
-            ("🏷️", "Classes",          "72 pest species"),
+            ("✅", "Cleaned images",   "115,478 images (after dedup + exclusions)"),
+            ("🏷️", "Classes",          "67 pest species"),
             ("🔍", "Deduplication",    "pHash · Hamming threshold τ=10"),
             ("⚖️", "Imbalance ratio",  "17.9:1 (max/min class)"),
-            ("📐", "Train/Val/Test",   "70% / 15% / 15% stratified"),
+            ("📐", "Train/Val/Test",   "80% / 10% / 10% split"),
         ]
         for icon, key, val in dataset_info:
             st.markdown(
@@ -674,13 +737,13 @@ elif page == "📖 About Project":
     with col_r:
         st.markdown('''<div class="sec-hdr">Deep Learning Model</div>''', unsafe_allow_html=True)
         model_info = [
-            ("🧠", "Architecture",    "EfficientNet-B4"),
-            ("📦", "Pretrained on",   "ImageNet-1K (1.2M images)"),
-            ("📐", "Input size",      "380 × 380 × 3 (RGB)"),
-            ("🔢", "Parameters",      "≈ 19 million"),
-            ("🎯", "Output",          "72 class probabilities"),
-            ("📉", "Loss function",   "Class-weighted Cross-Entropy"),
-            ("⚡", "Optimizer",       "AdamW · Cosine LR annealing"),
+            ("🧠", "Architecture",    "Haar-Wavelet front end + ResNet50"),
+            ("📦", "Pretrained on",   "ImageNet-1K (backbone only)"),
+            ("📐", "Input size",      "224 × 224 × 3 (RGB)"),
+            ("🔢", "Parameters",      "≈ 25.6 million"),
+            ("🎯", "Output",          "67 class probabilities"),
+            ("📉", "Loss function",   "Cross-Entropy"),
+            ("⚡", "Optimizer",       "Adam · discriminative LR · ReduceLROnPlateau"),
             ("🔄", "Augmentations",   "Flip, rotate, jitter, erasing"),
             ("💻", "Hardware",        "GPU (T4 / A100)"),
         ]
