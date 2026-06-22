@@ -22,7 +22,7 @@ import urllib.request
 # ─────────────────────────────────────────────────────────────
 # Local path inside the repo. Works on Streamlit Community Cloud,
 # Hugging Face Spaces, Render, or any container deployment.
-MODEL_PATH  = os.environ.get("MODEL_PATH", "models/best_wavelet_resnet_model (1).pth.zip")
+MODEL_PATH  = os.environ.get("MODEL_PATH", "models/best_wavelet_resnet_model.pth")
 
 # Optional: if the .pth file is too large to commit to GitHub (>100MB),
 # host it elsewhere (Hugging Face Hub, S3, a GitHub Release asset, etc.)
@@ -43,8 +43,14 @@ def ensure_model_downloaded():
     if not MODEL_URL:
         return
     os.makedirs(os.path.dirname(MODEL_PATH) or ".", exist_ok=True)
-    with st.spinner(f"Downloading model weights from {MODEL_URL} …"):
-        urllib.request.urlretrieve(MODEL_URL, MODEL_PATH)
+    with st.spinner("Downloading model weights from Google Drive … (first run only, ~91 MB)"):
+        try:
+            import gdown
+            # gdown handles Google Drive's virus-scan confirmation page for large files
+            gdown.download(MODEL_URL, MODEL_PATH, quiet=False, fuzzy=True)
+        except Exception as e:
+            st.error(f"Failed to download model: {e}")
+            return
 
 # ─────────────────────────────────────────────────────────────
 #  PAGE CONFIG
