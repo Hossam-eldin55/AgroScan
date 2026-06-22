@@ -772,22 +772,23 @@ elif page == "👥 Team":
     )
  
     members = [
-        ("👨‍💻", "Youssef Ibrahim",      "120220297", "#e8f5e9", "#4caf50"),
-        ("👨‍💻", "Abdelrahman Saeed",    "120220303", "#e3f2fd", "#2196f3"),
-        ("👨‍💻", "Mohamed Tareq",        "120220307", "#fff3e0", "#ff9800"),
-        ("👨‍💻", "Hossam Eldin",         "120220313", "#f3e5f5", "#9c27b0"),
-        ("👨‍💻", "Mohamed Abdelfatah",   "120220228", "#fce4ec", "#e91e63"),
-        ("👨‍💻", "Ziad Reda",            "120220348", "#e0f7fa", "#00bcd4"),
+        ("Youssef Ibrahim",    "120220297", "#e8f5e9", "#4caf50"),
+        ("Abdelrahman Saeed",  "120220303", "#e3f2fd", "#2196f3"),
+        ("Mohamed Tareq",      "120220307", "#e8f5e9", "#4caf50"),
+        ("Hossam Eldin",       "120220313", "#e3f2fd", "#2196f3"),
+        ("Mohamed Abdelfatah", "120220228", "#e8f5e9", "#4caf50"),
+        ("Ziad Reda",          "120220348", "#e3f2fd", "#2196f3"),
     ]
  
     # Row 1: 3 members
     r1 = st.columns(3, gap="medium")
-    for col, (icon, name, sid, bg, border) in zip(r1, members[:3]):
+    for col, (name, sid, bg, border) in zip(r1, members[:3]):
         col.markdown(
-            '''<div class="team-card">'''  +
-            f'''<div class="avatar" style="background:{bg};border:2px solid {border};">{icon}</div>'''  +
-            f'''<div class="member-name">{name}</div>'''  +
-            f'''<div class="member-role" style="font-size:0.82rem;color:#555;margin-top:0.3rem;">ID: {sid}</div>'''  +
+            f'''<div style="background:{bg};border:2px solid {border};border-radius:14px;'''  +
+            '''padding:1.4rem 1rem;text-align:center;box-shadow:0 2px 10px rgba(0,0,0,0.07);">'''  +
+            f'''<div style="font-size:2rem;margin-bottom:0.6rem;">👨‍💻</div>'''  +
+            f'''<div style="font-size:1rem;font-weight:700;color:#1b5e20;">{name}</div>'''  +
+            f'''<div style="font-size:0.82rem;color:#555;margin-top:0.4rem;font-family:monospace;">ID: {sid}</div>'''  +
             '''</div>''', unsafe_allow_html=True
         )
  
@@ -795,12 +796,13 @@ elif page == "👥 Team":
  
     # Row 2: 3 members
     r2 = st.columns(3, gap="medium")
-    for col, (icon, name, sid, bg, border) in zip(r2, members[3:]):
+    for col, (name, sid, bg, border) in zip(r2, members[3:]):
         col.markdown(
-            '''<div class="team-card">'''  +
-            f'''<div class="avatar" style="background:{bg};border:2px solid {border};">{icon}</div>'''  +
-            f'''<div class="member-name">{name}</div>'''  +
-            f'''<div class="member-role" style="font-size:0.82rem;color:#555;margin-top:0.3rem;">ID: {sid}</div>'''  +
+            f'''<div style="background:{bg};border:2px solid {border};border-radius:14px;'''  +
+            '''padding:1.4rem 1rem;text-align:center;box-shadow:0 2px 10px rgba(0,0,0,0.07);">'''  +
+            f'''<div style="font-size:2rem;margin-bottom:0.6rem;">👨‍💻</div>'''  +
+            f'''<div style="font-size:1rem;font-weight:700;color:#1b5e20;">{name}</div>'''  +
+            f'''<div style="font-size:0.82rem;color:#555;margin-top:0.4rem;font-family:monospace;">ID: {sid}</div>'''  +
             '''</div>''', unsafe_allow_html=True
         )
         
