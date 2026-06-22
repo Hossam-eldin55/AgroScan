@@ -20,16 +20,18 @@ import urllib.request
 # ─────────────────────────────────────────────────────────────
 #  CONFIG  —  edit these if needed
 # ─────────────────────────────────────────────────────────────
-# Local path where the model will be saved after download.
-MODEL_PATH    = os.environ.get("MODEL_PATH", "models/best_wavelet_resnet_model.pth")
+# Local path inside the repo. Works on Streamlit Community Cloud,
+# Hugging Face Spaces, Render, or any container deployment.
+MODEL_PATH  = os.environ.get("MODEL_PATH", "models/best_wavelet_resnet_model.pth")
 
-# MODEL_URL is read from Streamlit secrets or env var inside get_model_url().
-# Set it in Streamlit Cloud → Settings → Secrets:
-#   MODEL_URL = "https://drive.google.com/uc?export=download&id=YOUR_FILE_ID"
-NUM_CLASSES   = 67
-IMG_SIZE      = 224
+# Optional: if the .pth file is too large to commit to GitHub (>100MB),
+# host it elsewhere (Hugging Face Hub, S3, a GitHub Release asset, etc.)
+# and set MODEL_URL as a Streamlit secret or environment variable.
+# The app will download it once into MODEL_PATH on first run.
+NUM_CLASSES  = 67                          # 72 originally collected − 5 excluded during training
+IMG_SIZE     = 224                          # WaveletEnhancedResNet / ResNet50 native input
 BACKBONE_NAME = os.environ.get("BACKBONE_NAME", "resnet50")
-DEVICE        = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+DEVICE      = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 
 def get_model_url():
