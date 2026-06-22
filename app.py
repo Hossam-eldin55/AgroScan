@@ -1,4 +1,3 @@
-
 # =============================================================
 #  AgroScan — Agricultural Pest Classification
 #  Streamlit Application  |  5 Pages
@@ -56,7 +55,7 @@ def ensure_model_downloaded():
     with st.spinner("Downloading model weights from Google Drive … (~91 MB, first run only)"):
         try:
             import gdown
-            gdown.download(url, MODEL_PATH, quiet=False)
+            gdown.download(url, MODEL_PATH, quiet=False, fuzzy=True)
         except Exception as e:
             st.error(f"Failed to download model: {e}")
             return
@@ -431,8 +430,7 @@ with st.sidebar:
     st.markdown("---")
     page = st.radio(
         "Navigation",
-        ["🏠 Home", "🔬 Pest Prediction", "📋 Pest Classes",
-         "📖 About Project", "👥 Team"],
+        ["🏠 Home", "🔬 Pest Prediction", "📋 Pest Classes", "👥 Team"],
         label_visibility="collapsed",
     )
     st.markdown("---")
@@ -468,10 +466,10 @@ if page == "🏠 Home":
     # Stat chips row
     c1, c2, c3, c4 = st.columns(4)
     stats = [
-        ("72",      "Pest Classes"),
-        ("118K+",   "Training Images"),
-        ("EffB4",   "Backbone"),
-        ("Top-5",   "Accuracy Mode"),
+        ("67",    "Pest Species"),
+        ("📸",    "Photo Upload"),
+        ("⚡",    "Instant Results"),
+        ("🌾",    "Crop Protection"),
     ]
     for col, (val, lbl) in zip([c1, c2, c3, c4], stats):
         col.markdown(
@@ -486,21 +484,23 @@ if page == "🏠 Home":
     col_left, col_right = st.columns([1.1, 0.9], gap="large")
 
     with col_left:
-        st.markdown('''<div class="sec-hdr">About This System</div>''', unsafe_allow_html=True)
+        st.markdown('''<div class="sec-hdr">What is AgroScan?</div>''', unsafe_allow_html=True)
         st.markdown('''<div class="ag-card ag-card-green">'''  +
             '''<p style="font-size:0.95rem;color:#333;line-height:1.8;margin:0;">'''  +
-            '''<b>AgroScan</b> is a deep-learning system that automatically identifies '''  +
-            '''agricultural pest insects from field photographs. It was trained on a custom '''  +
-            '''dataset of <b>115,478 images</b> spanning <b>67 pest species</b>, covering '''  +
-            '''the most economically significant insects across major crop systems worldwide.'''  +
+            '''<b>AgroScan</b> is an intelligent pest identification tool designed to help '''  +
+            '''farmers, agronomists, and agricultural professionals quickly identify harmful '''  +
+            '''insects and pests from field photographs. Simply upload a photo of a suspected '''  +
+            '''pest and AgroScan will instantly tell you the species name, its insect order, '''  +
+            '''and its risk level to your crops — enabling faster, more targeted pest '''  +
+            '''management decisions that reduce crop loss.'''  +
             '''</p></div>''', unsafe_allow_html=True)
 
-        st.markdown('''<div class="sec-hdr">How It Works</div>''', unsafe_allow_html=True)
+        st.markdown('''<div class="sec-hdr">How to Use</div>''', unsafe_allow_html=True)
         steps = [
-            ("📸", "Upload",    "Take or upload a photo of the suspected pest."),
-            ("⚙️", "Preprocess","Image is resized, normalised, and standardised to 224×224."),
-            ("🧠", "Inference", "A Haar-wavelet front end feeds a ResNet50 backbone for the forward pass."),
-            ("📊", "Result",    "Top predicted species and confidence score are shown."),
+            ("📸", "Take a Photo",      "Photograph the pest you found in the field. Make sure it is clear, well-lit, and fills most of the frame."),
+            ("📂", "Upload the Image",  "Go to the Pest Prediction page and upload your photo (JPG or PNG)."),
+            ("⏱️", "Get Instant Results","AgroScan will analyse your image and return the most likely species match along with a confidence score."),
+            ("📋", "Explore Classes",   "Browse all 67 supported pest species under the Pest Classes page to learn more about risk levels and categories."),
         ]
         for icon, title, desc in steps:
             st.markdown(
@@ -512,16 +512,16 @@ if page == "🏠 Home":
             )
 
     with col_right:
-        st.markdown('''<div class="sec-hdr">Project Objectives</div>''', unsafe_allow_html=True)
-        objectives = [
-            "Develop an accurate AI model for 67-class agricultural pest identification",
-            "Build a clean, deduplicated training dataset from 135K+ raw images",
-            "Apply a Haar-wavelet front end with a ResNet50 backbone (ImageNet pretrained)",
-            "Handle class imbalance with weighted loss and stratified sampling",
-            "Deploy a user-friendly web interface for real-world field use",
-            "Contribute to integrated pest management (IPM) through AI automation",
+        st.markdown('''<div class="sec-hdr">Key Features</div>''', unsafe_allow_html=True)
+        features = [
+            "Identifies 67 agriculturally significant pest species from a single photo",
+            "Covers both adult and larval stages for many common pests",
+            "Provides a confidence score so you know how certain the result is",
+            "Displays risk level (Very High / High / Medium / Low) for each identified pest",
+            "Shows insect order classification alongside the species name",
+            "Browse the full pest catalogue with filters by order and risk level",
         ]
-        for i, obj in enumerate(objectives, 1):
+        for i, feat in enumerate(features, 1):
             st.markdown(
                 f'''<div style="display:flex;gap:0.7rem;align-items:flex-start;'''  +
                 f'''margin-bottom:0.7rem;'''  +
@@ -531,7 +531,7 @@ if page == "🏠 Home":
                 f'''border-radius:50%;width:24px;height:24px;display:flex;'''  +
                 f'''align-items:center;justify-content:center;font-size:0.75rem;'''  +
                 f'''flex-shrink:0;">{i}</span>'''  +
-                f'''<span style="font-size:0.88rem;color:#333;">{obj}</span>'''  +
+                f'''<span style="font-size:0.88rem;color:#333;">{feat}</span>'''  +
                 '''</div>''', unsafe_allow_html=True
             )
 
@@ -729,98 +729,23 @@ elif page == "📋 Pest Classes":
 
 
 # ═════════════════════════════════════════════════════════════
-#  PAGE 4 — ABOUT PROJECT
-# ═════════════════════════════════════════════════════════════
-elif page == "📖 About Project":
-
-    st.markdown('''<p class="hero-title" style="font-size:2rem;">📖 About the Project</p>''',
-                unsafe_allow_html=True)
-
-    col_l, col_r = st.columns(2, gap="large")
-
-    with col_l:
-        st.markdown('''<div class="sec-hdr">Project Overview</div>''', unsafe_allow_html=True)
-        st.markdown(
-            '''<div class="ag-card ag-card-green">'''  +
-            '''<p style="font-size:0.9rem;color:#333;line-height:1.8;margin:0;">'''  +
-            '''This graduation project develops a deep learning system for <b>automatic '''  +
-            '''agricultural pest recognition</b>. Farmers and agronomists can photograph '''  +
-            '''a pest and receive instant species identification, enabling faster and more '''  +
-            '''targeted pest management decisions that reduce crop loss and pesticide use.'''  +
-            '''</p></div>''', unsafe_allow_html=True
-        )
-
-        st.markdown('''<div class="sec-hdr">Dataset</div>''', unsafe_allow_html=True)
-        dataset_info = [
-            ("📦", "Source",           "Custom web-scraped dataset"),
-            ("🗂️", "Raw images",       "135,190 images"),
-            ("✅", "Cleaned images",   "115,478 images (after dedup + exclusions)"),
-            ("🏷️", "Classes",          "67 pest species"),
-            ("🔍", "Deduplication",    "pHash · Hamming threshold τ=10"),
-            ("⚖️", "Imbalance ratio",  "17.9:1 (max/min class)"),
-            ("📐", "Train/Val/Test",   "80% / 10% / 10% split"),
-        ]
-        for icon, key, val in dataset_info:
-            st.markdown(
-                f'''<div style="display:flex;gap:0.8rem;align-items:center;'''  +
-                '''background:white;border:1px solid #e0ead8;border-radius:8px;'''  +
-                '''padding:0.5rem 0.9rem;margin-bottom:0.4rem;">'''  +
-                f'''<span style="font-size:1.1rem;">{icon}</span>'''  +
-                f'''<span style="font-size:0.82rem;color:#333;"><b>{key}:</b> {val}</span>'''  +
-                '''</div>''', unsafe_allow_html=True
-            )
-
-    with col_r:
-        st.markdown('''<div class="sec-hdr">Deep Learning Model</div>''', unsafe_allow_html=True)
-        model_info = [
-            ("🧠", "Architecture",    "Haar-Wavelet front end + ResNet50"),
-            ("📦", "Pretrained on",   "ImageNet-1K (backbone only)"),
-            ("📐", "Input size",      "224 × 224 × 3 (RGB)"),
-            ("🔢", "Parameters",      "≈ 25.6 million"),
-            ("🎯", "Output",          "67 class probabilities"),
-            ("📉", "Loss function",   "Cross-Entropy"),
-            ("⚡", "Optimizer",       "Adam · discriminative LR · ReduceLROnPlateau"),
-            ("🔄", "Augmentations",   "Flip, rotate, jitter, erasing"),
-            ("💻", "Hardware",        "GPU (T4 / A100)"),
-        ]
-        for icon, key, val in model_info:
-            st.markdown(
-                f'''<div style="display:flex;gap:0.8rem;align-items:center;'''  +
-                '''background:white;border:1px solid #e0ead8;border-radius:8px;'''  +
-                '''padding:0.5rem 0.9rem;margin-bottom:0.4rem;">'''  +
-                f'''<span style="font-size:1.1rem;">{icon}</span>'''  +
-                f'''<span style="font-size:0.82rem;color:#333;"><b>{key}:</b> {val}</span>'''  +
-                '''</div>''', unsafe_allow_html=True
-            )
-
-        st.markdown('''<div class="sec-hdr" style="margin-top:1rem;">Training Results</div>''',
-                    unsafe_allow_html=True)
-        metrics = [("Top-1 Accuracy", "TBD"), ("Top-5 Accuracy", "TBD"),
-                   ("Best Val Loss", "TBD"), ("Epochs Trained", "30")]
-        mc1, mc2 = st.columns(2)
-        for i, (k, v) in enumerate(metrics):
-            col = mc1 if i % 2 == 0 else mc2
-            col.markdown(
-                f'''<div class="stat-box" style="margin-bottom:0.5rem;">'''  +
-                f'''<div class="stat-val" style="font-size:1.3rem;">{v}</div>'''  +
-                f'''<div class="stat-lbl">{k}</div>'''  +
-                '''</div>''', unsafe_allow_html=True
-            )
-
-
-# ═════════════════════════════════════════════════════════════
-#  PAGE 5 — TEAM
+#  PAGE 4 — TEAM
 # ═════════════════════════════════════════════════════════════
 elif page == "👥 Team":
 
-    # Department header
+    # University / department header
     st.markdown(
         '''<div style="text-align:center;padding:1rem 0 0.5rem;">'''  +
-        '''<div style="font-size:2rem;margin-bottom:0.4rem;">🎓</div>'''  +
-        '''<div style="font-size:1rem;color:#4a7c59;font-weight:600;'''  +
-        '''text-transform:uppercase;letter-spacing:0.1em;">Department of Computer Science Engineering</div>'''  +
-        '''<div style="font-size:2rem;font-weight:800;color:#1b5e20;margin:0.4rem 0;">Our Team</div>'''  +
-        '''<div style="font-size:0.9rem;color:#4a7c59;">Graduation Project 1 · 2026</div>'''  +
+        '''<div style="font-size:2.5rem;margin-bottom:0.6rem;">🎓</div>'''  +
+        '''<div style="font-size:1.15rem;font-weight:800;color:#1b5e20;margin-bottom:0.2rem;">'''  +
+        '''Egypt Japan University of Science and Technology</div>'''  +
+        '''<div style="font-size:0.95rem;color:#4a7c59;font-weight:600;margin-bottom:0.1rem;">'''  +
+        '''Faculty of Engineering</div>'''  +
+        '''<div style="font-size:0.88rem;color:#4a7c59;margin-bottom:0.8rem;">'''  +
+        '''Computer Science and Engineering Department</div>'''  +
+        '''<div style="width:60px;height:3px;background:#4caf50;margin:0 auto 1rem;border-radius:2px;"></div>'''  +
+        '''<div style="font-size:1.8rem;font-weight:800;color:#1b5e20;margin:0.4rem 0;">Our Team</div>'''  +
+        '''<div style="font-size:0.9rem;color:#4a7c59;">Graduation Project · 2026</div>'''  +
         '''</div>''', unsafe_allow_html=True
     )
 
@@ -835,31 +760,47 @@ elif page == "👥 Team":
         '''text-transform:uppercase;letter-spacing:0.12em;margin-bottom:0.8rem;">Project Supervisor</div>'''  +
         '''<div style="font-size:3rem;margin-bottom:0.5rem;">👨‍🏫</div>'''  +
         '''<div style="font-size:1.5rem;font-weight:800;color:#1b5e20;">Dr. XXXXX</div>'''  +
-        '''<div style="font-size:0.9rem;color:#4a7c59;margin-top:0.3rem;">Associate Professor · Computer Science Engineering</div>'''  +
+        '''<div style="font-size:0.9rem;color:#4a7c59;margin-top:0.3rem;">Associate Professor · Computer Science and Engineering</div>'''  +
         '''</div>''', unsafe_allow_html=True
     )
 
     # ── Team Members ───────────────────────────────────────
     st.markdown(
         '''<div style="font-size:1.1rem;font-weight:700;color:#1b5e20;'''  +
-        '''text-align:center;margin-bottom:1.2rem;">Team Members</div>''',
+        '''text-align:center;margin-bottom:1.4rem;">Team Members</div>''',
         unsafe_allow_html=True
     )
 
-    members = [
-        ("👩‍💻", "Member 1", "Deep Learning Engineer",  "#e8f5e9", "#4caf50"),
-        ("👨‍💻", "Member 2", "Data Pipeline Engineer",   "#e3f2fd", "#2196f3"),
-        ("👩‍🔬", "Member 3", "Model Training & Eval",    "#fff3e0", "#ff9800"),
-        ("👨‍🎨", "Member 4", "UI / Deployment Engineer", "#f3e5f5", "#9c27b0"),
+    avatars = [
+        ("👩‍💻", "#e8f5e9", "#4caf50"),
+        ("👨‍💻", "#e3f2fd", "#2196f3"),
+        ("👩‍🔬", "#fff3e0", "#ff9800"),
+        ("👨‍🎨", "#f3e5f5", "#9c27b0"),
+        ("👩‍💼", "#fce4ec", "#e91e63"),
+        ("👨‍🔧", "#e0f7fa", "#00bcd4"),
     ]
 
-    c1, c2, c3, c4 = st.columns(4, gap="medium")
-    for col, (icon, name, role, bg, border) in zip([c1,c2,c3,c4], members):
+    # Row 1: 3 members
+    r1 = st.columns(3, gap="medium")
+    for col, (icon, bg, border) in zip(r1, avatars[:3]):
         col.markdown(
             '''<div class="team-card">'''  +
             f'''<div class="avatar" style="background:{bg};border:2px solid {border};">{icon}</div>'''  +
-            f'''<div class="member-name">{name}</div>'''  +
-            f'''<div class="member-role">{role}</div>'''  +
+            '''<div class="member-name" style="color:#888;font-style:italic;">Name</div>'''  +
+            '''<div class="member-role" style="color:#aaa;font-size:0.78rem;margin-top:0.3rem;">ID: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</div>'''  +
+            '''</div>''', unsafe_allow_html=True
+        )
+
+    st.markdown("<br>", unsafe_allow_html=True)
+
+    # Row 2: 3 members
+    r2 = st.columns(3, gap="medium")
+    for col, (icon, bg, border) in zip(r2, avatars[3:]):
+        col.markdown(
+            '''<div class="team-card">'''  +
+            f'''<div class="avatar" style="background:{bg};border:2px solid {border};">{icon}</div>'''  +
+            '''<div class="member-name" style="color:#888;font-style:italic;">Name</div>'''  +
+            '''<div class="member-role" style="color:#aaa;font-size:0.78rem;margin-top:0.3rem;">ID: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</div>'''  +
             '''</div>''', unsafe_allow_html=True
         )
 
@@ -870,6 +811,7 @@ elif page == "👥 Team":
         '''border-radius:14px;padding:1.5rem 2rem;text-align:center;">'''  +
         '''<div style="font-size:1.2rem;font-weight:700;color:white;margin-bottom:0.4rem;">AgroScan</div>'''  +
         '''<div style="font-size:0.85rem;color:#a5d6a7;">Agricultural Pest Classification System</div>'''  +
-        '''<div style="font-size:0.78rem;color:#81c784;margin-top:0.5rem;">Graduation Project 1 · 2026</div>'''  +
+        '''<div style="font-size:0.78rem;color:#81c784;margin-top:0.5rem;">'''  +
+        '''Egypt Japan University of Science and Technology · Faculty of Engineering · 2026</div>'''  +
         '''</div>''', unsafe_allow_html=True
     )
