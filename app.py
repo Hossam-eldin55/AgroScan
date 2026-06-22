@@ -464,8 +464,8 @@ if page == "🏠 Home":
     )
 
    
-        st.markdown('''<div class="sec-hdr">What is AgroScan?</div>''', unsafe_allow_html=True)
-        st.markdown('''<div class="ag-card ag-card-green">'''  +
+    st.markdown('''<div class="sec-hdr">What is AgroScan?</div>''', unsafe_allow_html=True)
+    st.markdown('''<div class="ag-card ag-card-green">'''  +
             '''<p style="font-size:0.95rem;color:#333;line-height:1.8;margin:0;">'''  +
             '''<b>AgroScan</b> is an intelligent pest identification tool designed to help '''  +
             '''farmers, agronomists, and agricultural professionals quickly identify harmful '''  +
@@ -475,15 +475,15 @@ if page == "🏠 Home":
             '''management decisions that reduce crop loss.'''  +
             '''</p></div>''', unsafe_allow_html=True)
 
-        st.markdown('''<div class="sec-hdr">How to Use</div>''', unsafe_allow_html=True)
+    st.markdown('''<div class="sec-hdr">How to Use</div>''', unsafe_allow_html=True)
         steps = [
             ("📸", "Take a Photo",      "Photograph the pest you found in the field. Make sure it is clear, well-lit, and fills most of the frame."),
             ("📂", "Upload the Image",  "Go to the Pest Prediction page and upload your photo (JPG or PNG)."),
             ("⏱️", "Get Instant Results","AgroScan will analyse your image and return the most likely species match along with a confidence score."),
             ("📋", "Explore Classes",   "Browse all 67 supported pest species under the Pest Classes page to learn more about risk levels and categories."),
         ]
-        for icon, title, desc in steps:
-            st.markdown(
+    for icon, title, desc in steps:
+        st.markdown(
                 f'''<div style="display:flex;gap:1rem;align-items:flex-start;margin-bottom:0.8rem;">'''  +
                 f'''<div style="font-size:1.5rem;">{icon}</div>'''  +
                 f'''<div><b style="color:#1b5e20;">{title}</b>'''  +
