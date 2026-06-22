@@ -732,7 +732,7 @@ elif page == "📋 Pest Classes":
 #  PAGE 4 — TEAM
 # ═════════════════════════════════════════════════════════════
 elif page == "👥 Team":
-
+ 
     # University / department header
     st.markdown(
         '''<div style="text-align:center;padding:1rem 0 0.5rem;">'''  +
@@ -748,9 +748,9 @@ elif page == "👥 Team":
         '''<div style="font-size:0.9rem;color:#4a7c59;">Graduation Project · 2026</div>'''  +
         '''</div>''', unsafe_allow_html=True
     )
-
+ 
     st.markdown("<br>", unsafe_allow_html=True)
-
+ 
     # ── Supervisor ─────────────────────────────────────────
     st.markdown(
         '''<div style="background:linear-gradient(135deg,#e8f5e9,#f1f8e9);'''  +
@@ -759,51 +759,51 @@ elif page == "👥 Team":
         '''<div style="font-size:0.75rem;font-weight:700;color:#4a7c59;'''  +
         '''text-transform:uppercase;letter-spacing:0.12em;margin-bottom:0.8rem;">Project Supervisor</div>'''  +
         '''<div style="font-size:3rem;margin-bottom:0.5rem;">👨‍🏫</div>'''  +
-        '''<div style="font-size:1.5rem;font-weight:800;color:#1b5e20;">Dr. XXXXX</div>'''  +
+        '''<div style="font-size:1.5rem;font-weight:800;color:#1b5e20;">Dr. Hossam Kasem</div>'''  +
         '''<div style="font-size:0.9rem;color:#4a7c59;margin-top:0.3rem;">Associate Professor · Computer Science and Engineering</div>'''  +
         '''</div>''', unsafe_allow_html=True
     )
-
+ 
     # ── Team Members ───────────────────────────────────────
     st.markdown(
         '''<div style="font-size:1.1rem;font-weight:700;color:#1b5e20;'''  +
         '''text-align:center;margin-bottom:1.4rem;">Team Members</div>''',
         unsafe_allow_html=True
     )
-
-    avatars = [
-        ("👩‍💻", "#e8f5e9", "#4caf50"),
-        ("👨‍💻", "#e3f2fd", "#2196f3"),
-        ("👩‍🔬", "#fff3e0", "#ff9800"),
-        ("👨‍🎨", "#f3e5f5", "#9c27b0"),
-        ("👩‍💼", "#fce4ec", "#e91e63"),
-        ("👨‍🔧", "#e0f7fa", "#00bcd4"),
+ 
+    members = [
+        ("👨‍💻", "Youssef Ibrahim",      "120220297", "#e8f5e9", "#4caf50"),
+        ("👨‍💻", "Abdelrahman Saeed",    "120220303", "#e3f2fd", "#2196f3"),
+        ("👨‍💻", "Mohamed Tareq",        "120220307", "#fff3e0", "#ff9800"),
+        ("👨‍💻", "Hossam Eldin",         "120220313", "#f3e5f5", "#9c27b0"),
+        ("👨‍💻", "Mohamed Abdelfatah",   "120220228", "#fce4ec", "#e91e63"),
+        ("👨‍💻", "Ziad Reda",            "120220348", "#e0f7fa", "#00bcd4"),
     ]
-
+ 
     # Row 1: 3 members
     r1 = st.columns(3, gap="medium")
-    for col, (icon, bg, border) in zip(r1, avatars[:3]):
+    for col, (icon, name, sid, bg, border) in zip(r1, members[:3]):
         col.markdown(
             '''<div class="team-card">'''  +
             f'''<div class="avatar" style="background:{bg};border:2px solid {border};">{icon}</div>'''  +
-            '''<div class="member-name" style="color:#888;font-style:italic;">Name</div>'''  +
-            '''<div class="member-role" style="color:#aaa;font-size:0.78rem;margin-top:0.3rem;">ID: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</div>'''  +
+            f'''<div class="member-name">{name}</div>'''  +
+            f'''<div class="member-role" style="font-size:0.82rem;color:#555;margin-top:0.3rem;">ID: {sid}</div>'''  +
             '''</div>''', unsafe_allow_html=True
         )
-
+ 
     st.markdown("<br>", unsafe_allow_html=True)
-
+ 
     # Row 2: 3 members
     r2 = st.columns(3, gap="medium")
-    for col, (icon, bg, border) in zip(r2, avatars[3:]):
+    for col, (icon, name, sid, bg, border) in zip(r2, members[3:]):
         col.markdown(
             '''<div class="team-card">'''  +
             f'''<div class="avatar" style="background:{bg};border:2px solid {border};">{icon}</div>'''  +
-            '''<div class="member-name" style="color:#888;font-style:italic;">Name</div>'''  +
-            '''<div class="member-role" style="color:#aaa;font-size:0.78rem;margin-top:0.3rem;">ID: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</div>'''  +
+            f'''<div class="member-name">{name}</div>'''  +
+            f'''<div class="member-role" style="font-size:0.82rem;color:#555;margin-top:0.3rem;">ID: {sid}</div>'''  +
             '''</div>''', unsafe_allow_html=True
         )
-
+        
     # ── Footer banner ───────────────────────────────────────
     st.markdown("<br>", unsafe_allow_html=True)
     st.markdown(
