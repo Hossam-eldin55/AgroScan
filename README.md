@@ -14,8 +14,6 @@ agroscan-streamlit/
 ├── .gitignore                # Excludes model weights, caches, secrets
 ├── .streamlit/
 │   └── config.toml          # Theme + server settings
-├── models/
-│   └── .gitkeep             # Model weights go here (not committed by default)
 └── README.md
 ```
 
