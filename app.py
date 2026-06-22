@@ -28,26 +28,35 @@ MODEL_PATH  = os.environ.get("MODEL_PATH", "models/best_wavelet_resnet_model.pth
 # host it elsewhere (Hugging Face Hub, S3, a GitHub Release asset, etc.)
 # and set MODEL_URL as a Streamlit secret or environment variable.
 # The app will download it once into MODEL_PATH on first run.
-MODEL_URL   = os.environ.get("MODEL_URL", st.secrets.get("MODEL_URL", "") if hasattr(st, "secrets") else "")
-
 NUM_CLASSES  = 67                          # 72 originally collected − 5 excluded during training
 IMG_SIZE     = 224                          # WaveletEnhancedResNet / ResNet50 native input
-BACKBONE_NAME = os.environ.get("BACKBONE_NAME", "resnet50")  # resnet18/34/50/101 — must match training
+BACKBONE_NAME = os.environ.get("BACKBONE_NAME", "resnet50")
 DEVICE      = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+
+def get_model_url():
+    """Read MODEL_URL from env var first, then Streamlit secrets."""
+    url = os.environ.get("MODEL_URL", "")
+    if url:
+        return url
+    try:
+        return st.secrets["MODEL_URL"]
+    except Exception:
+        return ""
 
 
 def ensure_model_downloaded():
     """Download the model file from MODEL_URL if it isn't already on disk."""
     if os.path.exists(MODEL_PATH):
         return
-    if not MODEL_URL:
+    url = get_model_url()
+    if not url:
         return
     os.makedirs(os.path.dirname(MODEL_PATH) or ".", exist_ok=True)
-    with st.spinner("Downloading model weights from Google Drive … (first run only, ~91 MB)"):
+    with st.spinner("Downloading model weights from Google Drive … (~91 MB, first run only)"):
         try:
             import gdown
-            # gdown handles Google Drive's virus-scan confirmation page for large files
-            gdown.download(MODEL_URL, MODEL_PATH, quiet=False, fuzzy=True)
+            gdown.download(url, MODEL_PATH, quiet=False, fuzzy=True)
         except Exception as e:
             st.error(f"Failed to download model: {e}")
             return
