@@ -6,4 +6,4 @@ torchvision
 Pillow>=10.0
 numpy
 plotly>=5.20
-gdown>=4.4.0
+gdown>=5.1
