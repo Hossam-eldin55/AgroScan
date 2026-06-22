@@ -304,70 +304,70 @@ RISK_COLORS = {
     "Medium":    "#4caf50", "Low":  "#2196f3",
 }
 
-# # ─────────────────────────────────────────────────────────────
-# #  MODEL ARCHITECTURE — must match the training notebook exactly
-# #  (Wavelet_ResNet_on_Cleaned_Dataset_without_conflicts_.ipynb)
-# # ─────────────────────────────────────────────────────────────
-# class HaarDWT2D(nn.Module):
-#     """2D Haar Wavelet Decomposition.
+# ─────────────────────────────────────────────────────────────
+#  MODEL ARCHITECTURE — must match the training notebook exactly
+#  (Wavelet_ResNet_on_Cleaned_Dataset_without_conflicts_.ipynb)
+# ─────────────────────────────────────────────────────────────
+class HaarDWT2D(nn.Module):
+    """2D Haar Wavelet Decomposition.
 
-#     Input:  RGB image tensor [B, 3, H, W] (H, W must be even)
-#     Output: Wavelet tensor   [B, 12, H/2, W/2]  (4 sub-bands per RGB channel)
-#     """
-#     def __init__(self):
-#         super().__init__()
-#         self.register_buffer("pL", torch.tensor([0.5, 0.5], dtype=torch.float32))
-#         self.register_buffer("pH", torch.tensor([0.5, -0.5], dtype=torch.float32))
+    Input:  RGB image tensor [B, 3, H, W] (H, W must be even)
+    Output: Wavelet tensor   [B, 12, H/2, W/2]  (4 sub-bands per RGB channel)
+    """
+    def __init__(self):
+        super().__init__()
+        self.register_buffer("pL", torch.tensor([0.5, 0.5], dtype=torch.float32))
+        self.register_buffer("pH", torch.tensor([0.5, -0.5], dtype=torch.float32))
 
-#     def forward(self, x):
-#         B, C, H, W = x.shape
-#         if H % 2 != 0 or W % 2 != 0:
-#             raise ValueError("Input height and width must be even for HaarDWT2D.")
+    def forward(self, x):
+        B, C, H, W = x.shape
+        if H % 2 != 0 or W % 2 != 0:
+            raise ValueError("Input height and width must be even for HaarDWT2D.")
 
-#         x_grouped = x.view(B * C, 1, H, W)
-#         k_LL = torch.outer(self.pL, self.pL).view(1, 1, 2, 2)
-#         k_LH = torch.outer(self.pL, self.pH).view(1, 1, 2, 2)
-#         k_HL = torch.outer(self.pH, self.pL).view(1, 1, 2, 2)
-#         k_HH = torch.outer(self.pH, self.pH).view(1, 1, 2, 2)
-#         kernels = torch.cat([k_LL, k_LH, k_HL, k_HH], dim=0).to(x.device)
+        x_grouped = x.view(B * C, 1, H, W)
+        k_LL = torch.outer(self.pL, self.pL).view(1, 1, 2, 2)
+        k_LH = torch.outer(self.pL, self.pH).view(1, 1, 2, 2)
+        k_HL = torch.outer(self.pH, self.pL).view(1, 1, 2, 2)
+        k_HH = torch.outer(self.pH, self.pH).view(1, 1, 2, 2)
+        kernels = torch.cat([k_LL, k_LH, k_HL, k_HH], dim=0).to(x.device)
 
-#         sub_bands = nn.functional.conv2d(x_grouped, kernels, stride=2)
-#         sub_bands = sub_bands.view(B, C, 4, H // 2, W // 2)
-#         out = sub_bands.reshape(B, C * 4, H // 2, W // 2)
-#         return out
+        sub_bands = nn.functional.conv2d(x_grouped, kernels, stride=2)
+        sub_bands = sub_bands.view(B, C, 4, H // 2, W // 2)
+        out = sub_bands.reshape(B, C * 4, H // 2, W // 2)
+        return out
 
 
-# class WaveletEnhancedResNet(nn.Module):
-#     def __init__(self, num_classes, backbone_name="resnet50"):
-#         super().__init__()
-#         self.dwt = HaarDWT2D()
+class WaveletEnhancedResNet(nn.Module):
+    def __init__(self, num_classes, backbone_name="resnet50"):
+        super().__init__()
+        self.dwt = HaarDWT2D()
 
-#         # Convert 12 wavelet channels back to 3 channels so a
-#         # pretrained ResNet can process them like RGB-like features.
-#         self.frequency_projector = nn.Sequential(
-#             nn.Conv2d(in_channels=12, out_channels=3, kernel_size=3, padding=1, bias=False),
-#             nn.BatchNorm2d(3),
-#             nn.ReLU(inplace=True)
-#         )
+        # Convert 12 wavelet channels back to 3 channels so a
+        # pretrained ResNet can process them like RGB-like features.
+        self.frequency_projector = nn.Sequential(
+            nn.Conv2d(in_channels=12, out_channels=3, kernel_size=3, padding=1, bias=False),
+            nn.BatchNorm2d(3),
+            nn.ReLU(inplace=True)
+        )
 
-#         if backbone_name == "resnet18":
-#             self.backbone = models.resnet18(weights=None)
-#         elif backbone_name == "resnet34":
-#             self.backbone = models.resnet34(weights=None)
-#         elif backbone_name == "resnet50":
-#             self.backbone = models.resnet50(weights=None)
-#         elif backbone_name == "resnet101":
-#             self.backbone = models.resnet101(weights=None)
-#         else:
-#             raise ValueError("Choose one of: resnet18, resnet34, resnet50, resnet101")
+        if backbone_name == "resnet18":
+            self.backbone = models.resnet18(weights=None)
+        elif backbone_name == "resnet34":
+            self.backbone = models.resnet34(weights=None)
+        elif backbone_name == "resnet50":
+            self.backbone = models.resnet50(weights=None)
+        elif backbone_name == "resnet101":
+            self.backbone = models.resnet101(weights=None)
+        else:
+            raise ValueError("Choose one of: resnet18, resnet34, resnet50, resnet101")
 
-#         in_features = self.backbone.fc.in_features
-#         self.backbone.fc = nn.Linear(in_features, num_classes)
+        in_features = self.backbone.fc.in_features
+        self.backbone.fc = nn.Linear(in_features, num_classes)
 
-#     def forward(self, x):
-#         x_freq = self.dwt(x)
-#         x_encoded = self.frequency_projector(x_freq)
-#         return self.backbone(x_encoded)
+    def forward(self, x):
+        x_freq = self.dwt(x)
+        x_encoded = self.frequency_projector(x_freq)
+        return self.backbone(x_encoded)
 
 
 # ─────────────────────────────────────────────────────────────
