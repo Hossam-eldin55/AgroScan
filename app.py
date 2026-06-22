@@ -463,27 +463,7 @@ if page == "🏠 Home":
         '''</div>''', unsafe_allow_html=True
     )
 
-    # Stat chips row
-    c1, c2, c3, c4 = st.columns(4)
-    stats = [
-        ("67",    "Pest Species"),
-        ("📸",    "Photo Upload"),
-        ("⚡",    "Instant Results"),
-        ("🌾",    "Crop Protection"),
-    ]
-    for col, (val, lbl) in zip([c1, c2, c3, c4], stats):
-        col.markdown(
-            f'''<div class="stat-box">'''  +
-            f'''<div class="stat-val">{val}</div>'''  +
-            f'''<div class="stat-lbl">{lbl}</div>'''  +
-            '''</div>''', unsafe_allow_html=True
-        )
-
-    st.markdown("<br>", unsafe_allow_html=True)
-
-    col_left, col_right = st.columns([1.1, 0.9], gap="large")
-
-    with col_left:
+   
         st.markdown('''<div class="sec-hdr">What is AgroScan?</div>''', unsafe_allow_html=True)
         st.markdown('''<div class="ag-card ag-card-green">'''  +
             '''<p style="font-size:0.95rem;color:#333;line-height:1.8;margin:0;">'''  +
@@ -508,30 +488,6 @@ if page == "🏠 Home":
                 f'''<div style="font-size:1.5rem;">{icon}</div>'''  +
                 f'''<div><b style="color:#1b5e20;">{title}</b>'''  +
                 f'''<p style="font-size:0.85rem;color:#555;margin:0;">{desc}</p></div>'''  +
-                '''</div>''', unsafe_allow_html=True
-            )
-
-    with col_right:
-        st.markdown('''<div class="sec-hdr">Key Features</div>''', unsafe_allow_html=True)
-        features = [
-            "Identifies 67 agriculturally significant pest species from a single photo",
-            "Covers both adult and larval stages for many common pests",
-            "Provides a confidence score so you know how certain the result is",
-            "Displays risk level (Very High / High / Medium / Low) for each identified pest",
-            "Shows insect order classification alongside the species name",
-            "Browse the full pest catalogue with filters by order and risk level",
-        ]
-        for i, feat in enumerate(features, 1):
-            st.markdown(
-                f'''<div style="display:flex;gap:0.7rem;align-items:flex-start;'''  +
-                f'''margin-bottom:0.7rem;'''  +
-                f'''background:white;border:1px solid #e0ead8;border-radius:10px;'''  +
-                f'''padding:0.7rem 1rem;">'''  +
-                f'''<span style="background:#e8f5e9;color:#1b5e20;font-weight:700;'''  +
-                f'''border-radius:50%;width:24px;height:24px;display:flex;'''  +
-                f'''align-items:center;justify-content:center;font-size:0.75rem;'''  +
-                f'''flex-shrink:0;">{i}</span>'''  +
-                f'''<span style="font-size:0.88rem;color:#333;">{feat}</span>'''  +
                 '''</div>''', unsafe_allow_html=True
             )
 
