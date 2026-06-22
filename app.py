@@ -476,7 +476,7 @@ if page == "🏠 Home":
             '''</p></div>''', unsafe_allow_html=True)
 
     st.markdown('''<div class="sec-hdr">How to Use</div>''', unsafe_allow_html=True)
-             steps = [
+    steps = [
             ("📸", "Take a Photo",      "Photograph the pest you found in the field. Make sure it is clear, well-lit, and fills most of the frame."),
             ("📂", "Upload the Image",  "Go to the Pest Prediction page and upload your photo (JPG or PNG)."),
             ("⏱️", "Get Instant Results","AgroScan will analyse your image and return the most likely species match along with a confidence score."),
