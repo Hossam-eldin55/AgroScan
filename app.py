@@ -55,7 +55,7 @@ def ensure_model_downloaded():
     with st.spinner("Downloading model weights from Google Drive … (~91 MB, first run only)"):
         try:
             import gdown
-            gdown.download(url, MODEL_PATH, quiet=False, fuzzy=True)
+            gdown.download(url, MODEL_PATH, quiet=False)
         except Exception as e:
             st.error(f"Failed to download model: {e}")
             return
