@@ -627,14 +627,13 @@ elif page == "📋 Pest Classes":
 
     # Stats
     import collections
-    order_counts = collections.Counter(c[1] for c in CLASS_DATA)
-    risk_counts  = collections.Counter(c[2] for c in CLASS_DATA)
+    risk_counts = collections.Counter(c[2] for c in CLASS_DATA)
 
-    c1, c2, c3, c4 = st.columns(4)
+    c1, c2, c3 = st.columns(3)
     for col, val, lbl in zip(
-        [c1, c2, c3, c4],
-        [72, len(order_counts), risk_counts["Very High"], risk_counts["High"]],
-        ["Total Classes", "Insect Orders", "Very High Risk", "High Risk"]
+        [c1, c2, c3],
+        [67, risk_counts["Very High"], risk_counts["High"]],
+        ["Total Classes", "Very High Risk", "High Risk"]
     ):
         col.markdown(
             f'''<div class="stat-box">'''  +
@@ -645,16 +644,10 @@ elif page == "📋 Pest Classes":
 
     st.markdown("<br>", unsafe_allow_html=True)
 
-    # Filters
-    f1, f2 = st.columns([2, 2])
-    with f1:
-        sel_order = st.selectbox("Filter by Order", ["All"] + sorted(order_counts.keys()))
-    with f2:
-        sel_risk  = st.selectbox("Filter by Risk",  ["All", "Very High", "High", "Medium", "Low"])
+    # Filter — risk only
+    sel_risk = st.selectbox("Filter by Risk", ["All", "Very High", "High", "Medium", "Low"])
 
     filtered = CLASS_DATA
-    if sel_order != "All":
-        filtered = [c for c in filtered if c[1] == sel_order]
     if sel_risk != "All":
         filtered = [c for c in filtered if c[2] == sel_risk]
 
@@ -667,7 +660,6 @@ elif page == "📋 Pest Classes":
     # Class grid — 3 columns
     cols = st.columns(3)
     for i, (name, order, risk) in enumerate(filtered):
-        o_col = ORDER_COLORS.get(order, "#4caf50")
         r_col = RISK_COLORS.get(risk, "#ff9800")
         with cols[i % 3]:
             st.markdown(
@@ -676,13 +668,10 @@ elif page == "📋 Pest Classes":
                 '''box-shadow:0 1px 6px rgba(0,0,0,0.05);">'''  +
                 f'''<div style="font-size:0.9rem;font-weight:600;color:#1b5e20;">{name}</div>'''  +
                 '''<div style="margin-top:0.4rem;">'''  +
-                f'''<span class="pill" style="background:{o_col}18;color:{o_col};'''  +
-                f'''border:1px solid {o_col}33;font-size:0.68rem;">{order}</span>'''  +
                 f'''<span class="pill" style="background:{r_col}18;color:{r_col};'''  +
                 f'''border:1px solid {r_col}33;font-size:0.68rem;">⚡ {risk}</span>'''  +
                 '''</div></div>''', unsafe_allow_html=True
             )
-
 
 # ═════════════════════════════════════════════════════════════
 #  PAGE 4 — TEAM
